@@ -252,10 +252,6 @@ export default function Page() {
                 />
                 <SmallButton onClick={() => shiftDate(1)}>後一天</SmallButton>
               </div>
-              <div className="mt-4 rounded-2xl bg-white/10 p-4 text-sm leading-7 text-slate-200">
-                <div><span className="font-semibold">左側</span> {otEntry?.ref || "尚未載入舊約經文"}</div>
-                <div><span className="font-semibold">右側</span> {ntEntry?.ref || "尚未載入新約經文"}</div>
-              </div>
             </div>
           </div>
         </div>
