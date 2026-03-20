@@ -72,10 +72,48 @@ function GreekSurface({ aligned = [] }) {
 }
 
 function InlineTranslation({ label, text }) {
+  const labelMap = {
+    YLT: "直譯",
+    CU5: "中文",
+    NRS: "英文",
+    VUL: "拉丁文",
+  };
+
+  if (!text || !String(text).trim() || text === "Not available" || text === "尚無資料") {
+    return null;
+  }
+
   return (
     <div className="leading-7">
-      <span className="mr-2 text-lg font-bold text-slate-900">{label}</span>
-      <span className="text-[1.05rem] leading-7 text-slate-800">{text || "尚無資料"}</span>
+      <span className="mr-2 text-lg font-bold text-slate-900">{labelMap[label] || label}</span>
+      <span className="text-[1.05rem] leading-7 text-slate-800">{text}</span>
+    </div>
+  );
+}
+
+function TranslationsBlock({ translations }) {
+  const items = [
+    { label: "YLT", text: translations?.YLT },
+    { label: "CU5", text: translations?.CU5 },
+    { label: "NRS", text: translations?.NRS },
+    { label: "VUL", text: translations?.VUL },
+  ].filter(
+    (item) =>
+      item.text &&
+      String(item.text).trim() &&
+      item.text !== "Not available" &&
+      item.text !== "尚無資料"
+  );
+
+  if (!items.length) {
+    return null;
+  }
+
+  return (
+    <div className="space-y-3 rounded-3xl bg-white p-5 ring-1 ring-slate-100">
+      {items.map((item) => (
+        <InlineTranslation key={item.label} label={item.label} text={item.text} />
+      ))}
     </div>
   );
 }
@@ -84,7 +122,6 @@ function Panel({
   title,
   badge,
   refText,
-  mainLabel,
   aligned,
   translations,
   tone = "sky",
@@ -104,23 +141,17 @@ function Panel({
           <div className="text-3xl font-semibold tracking-tight text-slate-900">{title}</div>
           <div className="mt-1 text-xl text-slate-600">{refText || "尚未載入經文"}</div>
         </div>
-        <div className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide ${badgeClass}`}>
+        <div className={`rounded-full px-3 py-1 text-xs font-semibold tracking-wide ${badgeClass}`}>
           {badge}
         </div>
       </div>
 
       <div className="space-y-4">
         <div className={`rounded-3xl p-5 ${blockClass}`}>
-          <div className="mb-2 text-lg font-bold text-slate-900">{mainLabel}</div>
           {rtl ? <HebrewSurface aligned={aligned} /> : <GreekSurface aligned={aligned} />}
         </div>
 
-        <div className="space-y-3 rounded-3xl bg-white p-5 ring-1 ring-slate-100">
-          <InlineTranslation label="YLT" text={translations?.YLT} />
-          <InlineTranslation label="CU5" text={translations?.CU5} />
-          <InlineTranslation label="NRS" text={translations?.NRS} />
-          <InlineTranslation label="VUL" text={translations?.VUL} />
-        </div>
+        <TranslationsBlock translations={translations} />
       </div>
     </div>
   );
@@ -234,7 +265,6 @@ export default function Page() {
             title="希伯來文"
             badge="舊約"
             refText={otEntry?.ref}
-            mainLabel="WTT"
             aligned={otEntry?.WTT_aligned || []}
             tone="amber"
             rtl
@@ -250,7 +280,6 @@ export default function Page() {
             title="希臘文"
             badge="新約"
             refText={ntEntry?.ref}
-            mainLabel="BGT"
             aligned={ntEntry?.BGT_aligned || []}
             tone="sky"
             translations={{
